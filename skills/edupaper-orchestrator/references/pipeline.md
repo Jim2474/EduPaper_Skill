@@ -12,6 +12,10 @@ and resumable.
     ├── project.json            # shared read-only — written by project-parser
     ├── references.json         # shared read-only — written by reference-manager
     ├── topics.json             # written by topic-generator
+    ├── surveys/                # questionnaire survey deliverables (开题报告要求)
+    │   ├── student-questionnaire.md  # 学生问卷
+    │   ├── teacher-questionnaire.md  # 教师问卷
+    │   └── survey-report.md          # 问卷调查分析报告
     ├── materials/
     │   └── {topic-id}/
     │       └── material.json   # written by classroom-generator (per topic)
@@ -21,6 +25,8 @@ and resumable.
     │       ├── review-report.md # written by paper-reviewer
     │       └── final.md        # written by humanizer
     ├── consistency-report.md   # written by consistency-checker
+    ├── exports/                # edupaper-exporter output
+    │   └── {topic-id}-标题.{docx,pdf,html}
     └── papers/                 # final compiled collection
         └── {topic-id}-标题.md
 ```
