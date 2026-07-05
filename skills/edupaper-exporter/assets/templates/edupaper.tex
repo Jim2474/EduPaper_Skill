@@ -21,6 +21,7 @@
 
 %% ===== Chinese Font Configuration =====
 %% CJK fonts — set via pandoc variables or defaults here
+%% 正文: 宋体(SimSun), 标题: 黑体(SimHei)
 $if(CJKmainfont)$
 \setCJKmainfont{$CJKmainfont$}
 $else$
@@ -32,6 +33,21 @@ $if(CJKsansfont)$
 $else$
 \setCJKsansfont{SimHei}
 $endif$
+
+%% Define \heiti and \songti commands for heading formatting
+\newcommand{\heiti}{\CJKfamily{sf}}
+\newcommand{\songti}{\CJKfamily{rm}}
+
+%% Chinese font sizes (字号)
+\newcommand{\zihao}[1]{%
+  \ifnum 1=#1 \fontsize{26pt}{36pt}\selectfont\fi
+  \ifnum 2=#1 \fontsize{22pt}{28pt}\selectfont\fi
+  \ifnum 3=#1 \fontsize{16pt}{24pt}\selectfont\fi
+  \ifnum 4=#1 \fontsize{14pt}{21pt}\selectfont\fi
+  \ifnum -4=#1 \fontsize{12pt}{18pt}\selectfont\fi
+  \ifnum 5=#1 \fontsize{10.5pt}{15.75pt}\selectfont\fi
+  \ifnum -5=#1 \fontsize{9pt}{13.5pt}\selectfont\fi
+}
 
 %% Latin fonts
 $if(mainfont)$
@@ -62,6 +78,8 @@ $endif$
 }
 
 %% ===== Page Style =====
+%% Margins: A4 standard (上下2.54cm, 左右3.17cm)
+\geometry{top=2.54cm, bottom=2.54cm, left=3.17cm, right=3.17cm}
 \pagestyle{fancy}
 \fancyhf{}
 \fancyhead[L]{\small\leftmark}
@@ -77,15 +95,25 @@ $else$
 $endif$
 
 %% ===== Section Formatting =====
+%% 一级标题: 黑体三号(16pt), 段前段后0.5行
 \titleformat{\section}
-    {\Large\bfseries\color{headingcolor}}
+    {\zihao{3}\heiti\color{headingcolor}}
     {\thesection}{1em}{}
+\titlespacing{\section}{0pt}{0.5\baselineskip}{0.5\baselineskip}
+
+%% 二级标题: 黑体四号(14pt)
 \titleformat{\subsection}
-    {\large\bfseries\color{headingcolor}}
+    {\zihao{4}\heiti\color{headingcolor}}
     {\thesubsection}{1em}{}
+
+%% 三级标题: 宋体小四(12pt)加粗
 \titleformat{\subsubsection}
-    {\normalsize\bfseries}
+    {\zihao{-4}\songti\bfseries}
     {\thesubsubsection}{1em}{}
+
+%% ===== First-line indent (首行缩进2字符) =====
+\usepackage{indentfirst}
+\setlength{\parindent}{2em}
 
 %% ===== Code Blocks =====
 \lstset{

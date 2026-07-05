@@ -4,6 +4,9 @@ Detailed section-by-section guidance for the teaching-case paper. This is
 the authoritative structure reference for paper-writer. Other topic types
 (评价类/调查类/理论类) adapt section 4 as noted at the end.
 
+**Format spec:** See `format-spec.md` for font sizes, margins, line spacing,
+heading hierarchy, and GB/T 7714 citation formatting details.
+
 ## Overall structure
 
 ```
