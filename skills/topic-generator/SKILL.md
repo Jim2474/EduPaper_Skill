@@ -7,9 +7,9 @@ description: |
   and before any materials or papers are generated. It reads the project
   profile's research content and produces topics.json — a list of 4-6 paper
   topics, each defined by a knowledge point, a labor scenario, and a research
-  angle. Does not generate materials or write papers. The two-paper-per-run
-  limit is enforced downstream by the orchestrator (user selects from this
-  matrix); this skill generates the full menu.
+  angle. Does not generate materials or write papers. The one-paper-per-run
+  limit is enforced downstream by the orchestrator (user selects one from
+  this matrix); this skill generates the full menu.
 agent_created: true
 ---
 
@@ -70,7 +70,8 @@ Write to `.edupaper/topics.json` — valid JSON, UTF-8, 2-space indent.
 ## Constraints
 
 - Do not generate materials or write papers. Only the topic matrix.
-- The two-paper limit is NOT enforced here — generate the full menu. The
-  orchestrator asks the user to pick after this skill completes.
+- The one-paper limit is NOT enforced here — generate the full menu (4-6
+  topics). The orchestrator asks the user to pick one after this skill
+  completes.
 - Topics should align with the project's 研究内容 — do not invent knowledge
   points or scenarios outside the project scope.

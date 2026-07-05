@@ -94,16 +94,21 @@ Writer: classroom-generator. Reader: paper-writer.
 Markdown files following the teaching-case paper structure defined in
 paper-writer's `references/paper-structure.md`.
 
-## Two-paper limit enforcement
+## One-paper limit enforcement
 
 The orchestrator enforces this at the topic-selection stage:
 
-1. After topic-generator produces topics.json, present the topic list to the
-   user.
-2. Ask the user to select at most two topics.
-3. Record the selection and only run stages 4–7 for the selected topics.
-4. If the user requests more, explain the two-paper limit and suggest running
-   again after the current batch completes.
+1. After topic-generator produces topics.json, present the full topic list
+   (4-6 options) to the user.
+2. Ask the user to select **one** topic.
+3. Record the selection and only run stages 4–7 for that single topic.
+4. If the user wants another paper, they run the pipeline again — the
+   resume logic skips already-completed stages (project.json,
+   references.json, topics.json) and jumps straight to topic selection.
+
+This design keeps each run focused: one decision, one paper, one clean
+output. Multiple papers accumulate in `.edupaper/drafts/` across runs, and
+consistency-checker can compare them.
 
 ## Resume logic
 

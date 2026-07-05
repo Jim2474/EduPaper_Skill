@@ -6,7 +6,8 @@ description: |
   a user wants to generate teaching-case papers (教学案例论文) from an education
   research project opening report (开题报告). Routes the agent through a sequence
   of single-responsibility skills that transform the opening report into a paper
-  collection. Enforces a hard limit of two papers per run. Delegates all actual
+  collection. Enforces a hard limit of one paper per run — the topic
+  menu shows multiple options but the user picks one. Delegates all actual
   work to downstream skills — this skill only sequences and routes.
 agent_created: true
 ---
@@ -24,8 +25,10 @@ generation work directly — delegate each stage to its dedicated skill.
 
 ## Hard constraint
 
-Generate at most **two papers per run**. If the topic matrix contains more
-than two topics, ask the user to pick two. Never exceed this limit.
+Generate exactly **one paper per run**. The topic menu shows multiple
+options (4-6 topics), but the user selects one. Never generate more than
+one paper per run — if the user wants another paper, they run the pipeline
+again and pick a different topic.
 
 ## Pipeline sequence
 
@@ -51,7 +54,10 @@ After step 8, copy each `final.md` into `.edupaper/papers/{id}-标题.md`.
 - After each stage, confirm the output file was written before proceeding.
 - If a stage fails after three self-check retries, pause and report to the
   user — do not skip ahead.
-- Steps 4–7 run once per selected topic (up to two topics).
+- Steps 4–7 run once for the single selected topic.
+- Step 8 (consistency-checker) runs if any papers from previous runs exist
+  in `.edupaper/drafts/`; for the first run with only one paper, it does a
+  single-paper sanity pass.
 
 ## Shared read-only data
 

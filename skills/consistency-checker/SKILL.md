@@ -19,10 +19,16 @@ Check all papers in the current batch for cross-paper consistency and write
 
 ## When to trigger
 
-- At least 2 papers exist under `.edupaper/drafts/*/paper.md`
-- Each paper has a review-report.md (paper-reviewer has run)
+- At least 1 paper exists under `.edupaper/drafts/*/paper.md`
+- The paper has a review-report.md (paper-reviewer has run)
 - `.edupaper/consistency-report.md` does not exist
-- Orchestrator routes here after all paper-reviewer stages complete
+- Orchestrator routes here after the paper-reviewer stage completes
+
+**Single-paper mode:** If only one paper exists, cross-paper checks (1-3)
+are skipped and the report focuses on check 4 (citation validity against
+references.json) and check 5 (topic coverage). This builds a baseline for
+future runs — when a second paper is added later, the full cross-paper
+comparison runs.
 
 ## Procedure
 
@@ -56,20 +62,22 @@ Check all papers in the current batch for cross-paper consistency and write
 
 ## Self-check (quality gate)
 
-- [ ] All papers in the batch were read and compared
-- [ ] All five checks executed with explicit pass/fail
+- [ ] All papers under `.edupaper/drafts/` were read
+- [ ] For single-paper mode: checks 1-3 marked N/A, checks 4-5 executed
+- [ ] For multi-paper mode: all five checks executed with explicit pass/fail
 - [ ] Every fail names the conflicting papers and quotes both passages
 - [ ] Shared-fact check covered every field in project.json 研究对象 and 依据
 - [ ] Citation conflict check covered every reference cited in 2+ papers
 - [ ] Coverage map shows which 研究内容 each paper addresses
 - [ ] No vague findings ("papers seem consistent") — all specific
-- [ ] Overall batch verdict stated (CONSISTENT / INCONSISTENT)
+- [ ] Overall verdict stated (CONSISTENT / INCONSISTENT / SINGLE-PAPER BASELINE)
 
 ## Constraints
 
 - Check only cross-paper issues — single-paper quality is paper-reviewer's job.
 - Do not modify papers — only report. Fixes go back to paper-writer.
 - If a paper's review-report.md has unresolved REJECT verdict, flag it as
-  a blocking issue (that paper should not be in the batch).
+  a blocking issue.
 - Quote exact passages when citing conflicts — must be verifiable.
-- For 2-paper batches (the max), compare directly; no statistical analysis.
+- In single-paper mode, still verify citations against references.json and
+  map topic coverage — these are useful even without a second paper.

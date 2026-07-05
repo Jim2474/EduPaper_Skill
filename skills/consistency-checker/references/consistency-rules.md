@@ -160,27 +160,29 @@ Build a table:
 
 ### Interpretation
 
-- For a 2-paper batch (the max), not all 研究内容 will be covered — that's
-  expected. Flag gaps as INFO, not fail.
-- If two papers both map to the same 依据内容 and same type, flag as
-  MINOR (redundancy risk — ensure they have different 切入点).
+- For a single-paper run, most 研究内容 will not be covered — that's
+  expected. Flag gaps as INFO, not fail. The coverage map builds over
+  multiple runs as more papers accumulate.
+- If multiple papers (across runs) both map to the same 依据内容 and same
+  type, flag as MINOR (redundancy risk — ensure they have different 切入点).
 - If a paper's 依据内容 doesn't match topics.json, flag as MAJOR.
 
 ### What constitutes a gap
 
 - A 研究内容 item with no paper addressing it.
-- For a 2-paper batch, gaps in ① and ③ are acceptable (typically only ②
-  is covered by teaching-case papers).
-- Gaps should be noted as "future batch" opportunities, not failures.
+- For early runs (1-2 papers), gaps in ① and ③ are acceptable (typically
+  only ② is covered by teaching-case papers).
+- Gaps should be noted as "future run" opportunities, not failures.
 
 ---
 
-## Batch verdict
+## Verdict
 
 | Verdict | Condition |
 |---------|-----------|
-| **CONSISTENT** | No MAJOR fails; MINOR fails listed as suggestions |
-| **INCONSISTENT** | Any MAJOR fail (shared fact mismatch, content duplication, citation conflict) |
+| **SINGLE-PAPER BASELINE** | Only one paper exists; checks 1-3 N/A, checks 4-5 executed |
+| **CONSISTENT** | 2+ papers, no MAJOR fails; MINOR fails listed as suggestions |
+| **INCONSISTENT** | 2+ papers, any MAJOR fail (shared fact mismatch, content duplication, citation conflict) |
 
 When INCONSISTENT, list blocking issues at the top before the check-by-check
 analysis. Blocking issues must be resolved by paper-writer before humanizer
