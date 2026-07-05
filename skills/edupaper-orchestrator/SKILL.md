@@ -40,10 +40,12 @@ Execute in order. Each step's output file is the next step's input.
 4. **classroom-generator** — (per selected topic) → `.edupaper/materials/{id}/material.json`
 5. **paper-writer** — material.json + references.json → `.edupaper/drafts/{id}/paper.md`
 6. **paper-reviewer** — paper.md → `.edupaper/drafts/{id}/reviewed.md`
-7. **humanizer** — reviewed.md → `.edupaper/drafts/{id}/final.md`
+7. **edupaper-humanizer** — reviewed.md → `.edupaper/drafts/{id}/final.md`
 8. **consistency-checker** — all final.md → `.edupaper/consistency-report.md`
+9. **edupaper-exporter** — papers/*.md → `.edupaper/exports/` (DOCX + PDF + HTML)
 
 After step 8, copy each `final.md` into `.edupaper/papers/{id}-标题.md`.
+After step 9, exported files are in `.edupaper/exports/{id}-标题.{docx,pdf,html}`.
 
 ## Routing rules
 

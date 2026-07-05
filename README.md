@@ -63,6 +63,7 @@ papers/{topic-id}-标题.md  (最终论文) ←───────────
 | 7 | paper-reviewer | 学术规范审查 | paper.md + project.json + material.json + references.json | review-report.md | ✅ 完成 |
 | 8 | consistency-checker | 跨论文一致性检查 | 所有 paper.md + review-report.md + project.json + references.json | consistency-report.md | ✅ 完成 |
 | 9 | edupaper-humanizer | 去 AI 味（包装 humanizer） | paper.md | final.md | ✅ 完成 |
+| 10 | edupaper-exporter | 导出为 Word/PDF/HTML | papers/*.md | exports/*.{docx,pdf,html} | ✅ 完成 |
 
 ## 数据流契约
 
@@ -80,6 +81,10 @@ papers/{topic-id}-标题.md  (最终论文) ←───────────
 │       ├── review-report.md # paper-reviewer 写入
 │       └── final.md        # edupaper-humanizer 写入
 ├── consistency-report.md   # consistency-checker 写入
+├── exports/                # edupaper-exporter 输出
+│   ├── {topic-id}-标题.docx
+│   ├── {topic-id}-标题.pdf
+│   └── {topic-id}-标题.html
 └── papers/
     └── {topic-id}-标题.md   # orchestrator 汇编最终论文集
 ```

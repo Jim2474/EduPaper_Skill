@@ -1,0 +1,129 @@
+%% edupaper.tex — Chinese-aware LaTeX template for EduPaper exports
+%% Used by pandoc with --pdf-engine=xelatex
+%% Supports CJK characters, academic paper formatting
+
+\documentclass[12pt, a4paper]{article}
+
+%% ===== Packages =====
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+\usepackage{fontspec}
+\usepackage{xeCJK}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{setspace}
+
+%% ===== Chinese Font Configuration =====
+%% CJK fonts — set via pandoc variables or defaults here
+$if(CJKmainfont)$
+\setCJKmainfont{$CJKmainfont$}
+$else$
+\setCJKmainfont{SimSun}
+$endif$
+
+$if(CJKsansfont)$
+\setCJKsansfont{$CJKsansfont$}
+$else$
+\setCJKsansfont{SimHei}
+$endif$
+
+%% Latin fonts
+$if(mainfont)$
+\setmainfont{$mainfont$}
+$else$
+\setmainfont{Times New Roman}
+$endif$
+
+$if(monofont)$
+\setmonofont{$monofont$}
+$else$
+\setmonofont{Menlo}
+$endif$
+
+%% ===== Colors =====
+\definecolor{linkcolor}{RGB}{0, 102, 204}
+\definecolor{codebackground}{RGB}{248, 248, 248}
+\definecolor{headingcolor}{RGB}{51, 51, 51}
+
+%% ===== Hyperlinks =====
+\hypersetup{
+    colorlinks=$if(colorlinks)$$colorlinks$$else$true$endif$,
+    linkcolor=$if(linkcolor)$$linkcolor$$else$linkcolor$endif$,
+    urlcolor=$if(urlcolor)$$urlcolor$$else$linkcolor$endif$,
+    citecolor=$if(citecolor)$$citecolor$$else$linkcolor$endif$,
+    pdfauthor={$author$},
+    pdftitle={$title$}
+}
+
+%% ===== Page Style =====
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\leftmark}
+\fancyhead[R]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+
+%% ===== Line Spacing =====
+$if(linestretch)$
+\setstretch{$linestretch$}
+$else$
+\setstretch{1.5}
+$endif$
+
+%% ===== Section Formatting =====
+\titleformat{\section}
+    {\Large\bfseries\color{headingcolor}}
+    {\thesection}{1em}{}
+\titleformat{\subsection}
+    {\large\bfseries\color{headingcolor}}
+    {\thesubsection}{1em}{}
+\titleformat{\subsubsection}
+    {\normalsize\bfseries}
+    {\thesubsubsection}{1em}{}
+
+%% ===== Code Blocks =====
+\lstset{
+    backgroundcolor=\color{codebackground},
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny\color{gray}
+}
+
+%% ===== Title Block =====
+$if(title)$
+\title{$title$}
+$endif$
+$if(author)$
+\author{$author$}
+$endif$
+$if(date)$
+\date{$date$}
+$else$
+\date{}
+$endif$
+
+\begin{document}
+
+%% ===== Title =====
+$if(title)$
+\maketitle
+$endif$
+
+%% ===== Table of Contents =====
+$if(toc)$
+\tableofcontents
+\newpage
+$endif$
+
+%% ===== Body =====
+$body$
+
+\end{document}
