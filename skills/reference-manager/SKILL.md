@@ -1,73 +1,80 @@
 ---
 name: reference-manager
-version: 0.1.0
+version: 0.2.0
 description: |
-  Build and maintain a shared reference library (references.json) for an
-  education research project. This skill should be used after project-parser
-  has produced project.json and before any paper is drafted. It reads the
-  project profile to determine which curriculum standards, textbooks, and
-  journals apply, then assembles a structured literature library that all
-  papers cite consistently. It is the sole writer of references.json — the
-  second shared read-only data source in the pipeline.
-agent_created: true
+  为教育科研课题构建共享文献库，写入 references.json。
+  在 project.json 存在且 references.json 不存在时触发。适用于任何学科的教育科研课题。
+  触发词：建立文献库 / 整理参考文献 / 生成参考文献 / 文献管理 /
+  manage references / build reference library / 整理文献 / 查文献资源。
+  本 skill 是 references.json 的唯一写入者，下游论文均从此库引用。
+  不写论文内容或生成选题。
+author: Jim2474
+agent_created: false
 ---
 
 # Reference Manager
 
-Assemble a shared reference library from the project profile and write it to
-`.edupaper/references.json`. All downstream papers cite from this single
-library, ensuring no paper invents or contradicts references.
+从课题档案中构建共享文献库，写入 `.edupaper/references.json`。
+所有下游论文从此单一库引用，确保不同论文之间引用一致、不矛盾。
+
+## 启动时加载
+
+1. 读 `../_shared/project-context.md` — 了解 project.json 字段含义
+2. 读 `.edupaper/project.json` — 获取课标、教材、研究内容、核心概念等实际数据
+3. 读 `references/reference-schema.md` — 四类文献的字段定义
+4. 读 `references/citation-gb7714.md` — GB/T 7714 引用格式
 
 ## When to trigger
 
-- `.edupaper/project.json` exists and is valid
-- `.edupaper/references.json` does not exist or is empty
-- User says "建立文献库" / "整理参考文献"
+- `.edupaper/project.json` 存在且有效
+- `.edupaper/references.json` 不存在或为空
+- 用户说"建立文献库" / "整理参考文献" / "生成参考文献"
 
 ## Procedure
 
-1. Read `.edupaper/project.json`. Extract: 依据.课标, 依据.教材, 依据.劳动基地,
-   研究设计.研究内容, 核心概念.
-2. Read `references/reference-schema.md` for the four library categories and
-   their field definitions.
-3. Read `references/citation-gb7714.md` for GB/T 7714 citation formatting.
-4. Assemble the library in four categories:
-   - **课标文献**: the curriculum standards named in 依据 (always include
-     both 数学课标 and 劳动课标 if the project spans both).
-   - **教材文献**: the textbook units relevant to the 研究内容. Specify exact
-     unit and page numbers.
-   - **期刊文献**: 6-10 education research journal articles relevant to the
-     核心概念. Prefer 2020+ publications from journals like 《小学数学教师》
-     《教学与管理》《数学教育学报》《课程·教材·教法》.
-   - **其他文献**: supplementary sources (政策文件, 学位论文, 网络资源).
-5. For each 期刊文献 entry, fill the 相关选题 field to indicate which paper
-   topics it supports (use topic letters A, B, C… matching topics.json).
-6. Write to `.edupaper/references.json`.
-7. Run the self-check below.
+1. 读上方"启动时加载"的所有文件。
+2. 从 `project.json` 提取：`依据.课标`、`依据.教材`、`研究设计.研究内容`、`核心概念`。
+3. 按四类组装文献库：
+   - **课标文献**：`project.json.依据.课标` 中列出的所有课程标准。
+     若课题涉及多学科（如数学+劳动），两种课标均需包含。
+   - **教材文献**：`project.json.依据.教材` 对应的单元和页码。
+     若 project.json 未给出具体页码，根据教材目录合理推断。
+   - **期刊文献**：与 `核心概念` 和 `研究内容` 相关的 2020 年后学术期刊论文，6-10篇。
+     选择与该课题学科领域匹配的权威期刊。
+     每篇设置 `verified` 字段：
+       - `"verified": true` — 确定该文章真实存在（作者+标题+期刊+年份+期号）
+       - `"verified": false` — 不确定是否真实存在，始终标注，不得省略
+       - **不确定时标 false，绝不猜测后标 true**
+   - **其他文献**：补充来源（政策文件、学位论文、网络资源）。
+4. 为每篇 `期刊文献` 填写 `相关选题` 字段，标注支持哪些选题 ID（A、B、C…）。
+5. 写入 `.edupaper/references.json`（UTF-8，2空格缩进）。
+6. 读 `../_shared/quality-gate.md` 执行通用质量门 + 下方 self-check。
 
 ## Output
 
-Write to `.edupaper/references.json` — valid JSON, UTF-8, 2-space indent.
+写入 `.edupaper/references.json` — 有效 JSON，UTF-8，2空格缩进。
 
 ## Self-check (quality gate)
 
-- [ ] 课标文献 has at least 1 entry (the project's 课标)
-- [ ] 教材文献 has at least 1 entry with specific 单元 and 页码
-- [ ] 期刊文献 has 6-10 entries, each with 作者/标题/期刊/年/期/页
-- [ ] Every 期刊文献 entry has a non-empty 摘要
-- [ ] Every 期刊文献 entry has 相关选题 filled (at least one topic letter)
-- [ ] No duplicate entries (same 作者+标题+年)
-- [ ] JSON is valid and parseable
+- [ ] 课标文献 ≥ 1 条（project.json 中的课标）
+- [ ] 教材文献 ≥ 1 条，含具体 单元 和 页码（或 `__MISSING__`）
+- [ ] 期刊文献 6-10 条，每条含 作者/标题/期刊/年/期/页
+- [ ] 每条期刊文献有非空 摘要
+- [ ] 每条期刊文献有 `verified` 字段（true 或 false，不得缺失）
+- [ ] 每条期刊文献有 相关选题（至少一个选题字母）
+- [ ] 无重复条目（相同 作者+标题+年）
+- [ ] 无条目标注 `verified: true` 但实际无把握
+- [ ] JSON 有效可解析
 
-If any check fails, fix and re-check (max 3 retries). After 3 failures, write
-the file and report the gaps.
+若任何检查失败，修复后重试，最多3次；失败后上报用户。
 
 ## Constraints
 
-- This skill is the **sole writer** of references.json. If it already exists
-  and is valid, skip.
-- References must be real and findable — do not fabricate citations. If unsure
-  whether a specific article exists, omit it rather than guess.
-- All citations follow GB/T 7714 format (see `references/citation-gb7714.md`).
-- Do not write paper content or generate topics. This skill only builds the
-  reference library.
+- **本 skill 是 references.json 的唯一写入者**；若文件已存在且有效，跳过
+- **防幻觉规则**：不确定时将 `verified` 设为 `false`。下游 paper-writer 的
+  self-check 会拒绝引用 `verified: false` 的条目（需用户确认），
+  从而防止虚假引用出现在最终论文中
+- 若找不到足够的 `verified: true` 期刊文献，包含 `verified: false` 占位条目
+  并向用户说明，而非发明 `verified: true` 的假文献
+- 所有引用遵循 GB/T 7714 格式（见 `references/citation-gb7714.md`）
+- 不写论文内容，不生成选题

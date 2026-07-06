@@ -20,26 +20,33 @@ Humanize one draft paper and write the final version to
 
 ## When to trigger
 
-- `.edupaper/drafts/{topic-id}/paper.md` exists
-- `.edupaper/consistency-report.md` exists with CONSISTENT verdict
-  (or this is a single-paper run where consistency-checker was skipped)
+- `.edupaper/drafts/{topic-id}/paper.md` exists (paper-writer has run)
+- `.edupaper/drafts/{topic-id}/review-report.md` exists with no unresolved
+  REJECT verdict (paper-reviewer has run and passed)
+- `.edupaper/consistency-report.md` exists with verdict CONSISTENT or
+  SINGLE-PAPER BASELINE (consistency-checker has run and passed)
 - `.edupaper/drafts/{topic-id}/final.md` does not exist
-- Orchestrator routes here as the final stage
+- Orchestrator routes here as the final prose-polishing stage
 
 ## Procedure
 
-1. Read `.edupaper/drafts/{topic-id}/paper.md` (the draft to humanize).
-2. Read `.edupaper/drafts/{topic-id}/review-report.md` — if it has
-   unresolved MAJOR issues, pause and report (do not humanize a broken draft).
-3. Read `references/academic-guardrails.md` for what must be preserved.
-4. Invoke the `humanizer` skill on the paper content. The humanizer
+1. Read `.edupaper/drafts/{topic-id}/paper.md` — this is the draft to
+   humanize. This is the **primary input** to the humanizer.
+2. Read `.edupaper/drafts/{topic-id}/review-report.md` — verify there are
+   no unresolved REJECT or blocking MAJOR issues. If any exist, pause and
+   report to user before humanizing.
+3. Read `.edupaper/consistency-report.md` — verify verdict is CONSISTENT or
+   SINGLE-PAPER BASELINE. If INCONSISTENT, pause and report; do not humanize
+   a paper flagged for cross-paper conflicts.
+4. Read `references/academic-guardrails.md` for what must be preserved.
+5. Invoke the `humanizer` skill on the paper content. The humanizer
    identifies and rewrites 33 AI writing patterns (see
    ~/.workbuddy/skills/humanizer/SKILL.md for the full pattern list).
-5. After humanizer rewrites, verify the academic guardrails (see below).
+6. After humanizer rewrites, verify the academic guardrails (see below).
    If any guardrail is violated, revert that section and re-apply humanizer
    with the constraint noted.
-6. Write the humanized text to `.edupaper/drafts/{topic-id}/final.md`.
-7. Run the self-check.
+7. Write the humanized text to `.edupaper/drafts/{topic-id}/final.md`.
+8. Run the self-check.
 
 ## Academic guardrails (what humanizer must NOT change)
 

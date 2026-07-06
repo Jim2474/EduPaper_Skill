@@ -95,10 +95,17 @@ Writer: topic-generator. Reader: orchestrator (to select topics), classroom-gene
 
 Writer: classroom-generator. Reader: paper-writer.
 
-### paper.md / reviewed.md / final.md
+### paper.md / review-report.md / consistency-report.md / final.md
 
 Markdown files following the teaching-case paper structure defined in
 paper-writer's `references/paper-structure.md`.
+
+Pipeline order for a single topic:
+1. `drafts/{id}/paper.md` — written by paper-writer
+2. `drafts/{id}/review-report.md` — written by paper-reviewer (quality gate)
+3. `consistency-report.md` — written by consistency-checker (must return
+   CONSISTENT or SINGLE-PAPER BASELINE before humanizer runs)
+4. `drafts/{id}/final.md` — written by edupaper-humanizer (input: paper.md)
 
 ## One-paper limit enforcement
 

@@ -1,132 +1,175 @@
-# EduPaper_Skill
+# EduPaper Skill
 
-教育科研课题论文批量生成 Skill 集 —— 基于 WorkBuddy / Claude Code Skill 架构。
+> 面向教育科研课题的论文批量生成 Skill — 适用于任何学科的教学案例论文
 
-## 概述
+将一份**开题报告**，通过 9 个单一职责 Skill 的流水线，自动生成符合学术规范的
+**教学案例论文**（DOCX / PDF / HTML 三格式输出）。
 
-将一份课题开题报告，通过 9 个单一职责 Skill 的流水线，转化为多篇符合学术规范的教学案例论文。
+---
 
-## 架构
+## ✨ 特性
 
-```
-开题报告(PDF/DOCX/MD)
-    │
-    ▼
-┌─────────────────────────────────────────────────────┐
-│  edupaper-orchestrator (编排入口)                     │
-│  路由 8 个下游 Skill，执行 1 篇论文限制                │
-└─────────────────────────────────────────────────────┘
-    │
-    ▼
-project-parser ──→ .edupaper/project.json          ← 共享只读数据源①
-    │
-    ▼
-reference-manager ──→ .edupaper/references.json    ← 共享只读数据源②
-    │
-    ▼
-topic-generator ──→ .edupaper/topics.json (4-6 选题全菜单)
-    │
-    ▼  (用户选 1 个选题)
-    │
-    ├─[选中选题]──────────────────────────────────────┐
-    │  classroom-generator → materials/{id}/material.json │
-    │  paper-writer → drafts/{id}/paper.md                │
-    │  paper-reviewer → drafts/{id}/review-report.md      │
-    │  edupaper-humanizer → drafts/{id}/final.md          │
-    │                                                       │
-    ▼                                                       │
-consistency-checker → .edupaper/consistency-report.md      │
-    │  (单篇模式：引用验证+覆盖检查；多篇模式：跨论文比对)    │
-    │                                                       │
-    ▼                                                       │
-papers/{topic-id}-标题.md  (最终论文) ←────────────────────┘
+| 特性 | 说明 |
+|------|------|
+| **通用型** | 适用于任何学科（数学、语文、科学等）的教育科研课题，不局限于特定基地或课题 |
+| **即装即用** | Mac / Windows / Linux 全平台兼容，自动检测工具，优雅降级 |
+| **防幻觉** | 期刊文献 `verified` 字段机制，虚假引用不进入最终论文 |
+| **可恢复** | 中断后从断点继续，已完成阶段自动跳过，不浪费算力 |
+| **质量门** | 每个 Skill 有 self-check 清单，三次重试协议，失败上报而非静默跳过 |
 
-    想要另一篇？再跑一次，选不同选题，新论文自动累积到 drafts/
-```
+---
 
-- **每次只生成 1 篇论文**（菜单展示多个选项，用户选一个）
-- **双共享只读数据源**：project.json + references.json，各由唯一 Skill 写入
-- **每个 Skill 单一职责**，通过文件串联，低耦合
-- **质量门机制**：每个 Skill 内嵌自检，最多 3 次重试
-- **多篇累积**：多次运行的结果都留在 .edupaper/drafts/，consistency-checker 自动比对
-
-## Skill 清单
-
-| # | Skill | 职责 | 输入 | 输出 | 状态 |
-|---|-------|------|------|------|------|
-| 1 | edupaper-orchestrator | 编排入口，路由流程，1篇限制 | 用户指令 | — | ✅ 完成 |
-| 2 | project-parser | 解析开题报告 | PDF/DOCX/MD | project.json | ✅ 完成 |
-| 3 | reference-manager | 维护文献库 | project.json | references.json | ✅ 完成 |
-| 4 | topic-generator | 生成选题矩阵 | project.json | topics.json | ✅ 完成 |
-| 5 | classroom-generator | 生成课例素材 | project.json + topics.json | material.json | ✅ 完成 |
-| 6 | paper-writer | 写论文初稿 | project.json + material.json + references.json + topics.json | paper.md | ✅ 完成 |
-| 7 | paper-reviewer | 学术规范审查 | paper.md + project.json + material.json + references.json | review-report.md | ✅ 完成 |
-| 8 | consistency-checker | 跨论文一致性检查 | 所有 paper.md + review-report.md + project.json + references.json | consistency-report.md | ✅ 完成 |
-| 9 | edupaper-humanizer | 去 AI 味（包装 humanizer） | paper.md | final.md | ✅ 完成 |
-| 10 | edupaper-exporter | 导出为 Word/PDF/HTML | papers/*.md | exports/*.{docx,pdf,html} | ✅ 完成 |
-
-## 数据流契约
+## 🏗️ 架构
 
 ```
-.edupaper/
-├── project.json            # ① 共享只读 — project-parser 写入
-├── references.json         # ② 共享只读 — reference-manager 写入
-├── topics.json             # topic-generator 写入
-├── materials/
-│   └── {topic-id}/
-│       └── material.json   # classroom-generator 写入（每选题一份）
-├── drafts/
-│   └── {topic-id}/
-│       ├── paper.md        # paper-writer 写入
-│       ├── review-report.md # paper-reviewer 写入
-│       └── final.md        # edupaper-humanizer 写入
-├── consistency-report.md   # consistency-checker 写入
-├── exports/                # edupaper-exporter 输出
-│   ├── {topic-id}-标题.docx
-│   ├── {topic-id}-标题.pdf
-│   └── {topic-id}-标题.html
-└── papers/
-    └── {topic-id}-标题.md   # orchestrator 汇编最终论文集
+EduPaper_Skill/
+├── skills/
+│   ├── _shared/                       ← 跨 skill 共享层（schema + 规范）
+│   │   ├── project-context.md         # project.json 字段说明（schema）
+│   │   ├── quality-gate.md            # 统一质量门与三次重试协议
+│   │   └── platform-detect.md        # 跨平台工具检测指导
+│   │
+│   ├── edupaper-orchestrator/         ← 流水线入口（路由器）
+│   │   ├── SKILL.md                   # 9步流水线编排
+│   │   ├── manifest.yaml              # 声明式配置（always_load + axes）
+│   │   └── references/
+│   │       └── pipeline.md            # 数据流契约与目录规范
+│   │
+│   ├── project-parser/                ← Step 1：解析开题报告
+│   ├── reference-manager/             ← Step 2：构建文献库
+│   ├── topic-generator/               ← Step 3：生成选题菜单
+│   ├── classroom-generator/           ← Step 4：生成教学素材
+│   ├── paper-writer/                  ← Step 5：撰写论文草稿
+│   ├── paper-reviewer/                ← Step 6：论文审阅
+│   ├── consistency-checker/           ← Step 7：跨论文一致性检查
+│   ├── edupaper-humanizer/            ← Step 8：文本人性化（可选）
+│   └── edupaper-exporter/             ← Step 9：多格式导出
+│       ├── SKILL.md
+│       ├── scripts/
+│       │   └── export_all.py          # 跨平台 Python 导出脚本
+│       └── references/
+│           ├── export-guide-mac.md    # macOS 安装指引
+│           └── export-guide-windows.md # Windows 安装指引
 ```
 
-## 安装
+### 数据流
+
+```
+开题报告 (PDF/DOCX/MD)
+    │
+    ▼
+project-parser → project.json ──────────────────────────┐
+    │                                                     │
+    ▼                                                     │
+reference-manager → references.json ──────────┐          │
+    │                                          │          │
+    ▼                                          │          │
+topic-generator → topics.json                 │          │
+    │ [用户选一个]                              │          │
+    ▼                                          │          │
+classroom-generator → material.json           │          │
+    │                                          │          │
+    ▼                                          ▼          ▼
+paper-writer → paper.md ← (material + references + project)
+    │
+    ▼
+paper-reviewer → review-report.md
+    │
+    ▼
+consistency-checker → consistency-report.md
+    │ [通过后]
+    ▼
+edupaper-humanizer → final.md   (可选，需安装)
+    │
+    ▼
+edupaper-exporter → output.docx / output.pdf / output.html
+```
+
+**共享只读数据源**（一次写入，所有 skill 只读）：
+- `project.json` — 仅由 project-parser 写
+- `references.json` — 仅由 reference-manager 写
+
+---
+
+## 🚀 快速开始
+
+### 安装
+
+将整个 `EduPaper_Skill/skills/` 目录放到你的 Skill 根目录下：
 
 ```bash
-# 克隆仓库
-git clone https://github.com/Jim2474/EduPaper_Skill.git
+# macOS / Linux
+cp -r EduPaper_Skill/skills/* ~/.your-agent/skills/
 
-# 将 skills/ 下的各 Skill 复制到 WorkBuddy skills 目录
-cp -r EduPaper_Skill/skills/* ~/.workbuddy/skills/
-
-# humanizer 是外部依赖，需单独安装（edupaper-humanizer 会调用它）
-# 参见 https://github.com/blader/humanizer
+# Windows（PowerShell）
+Copy-Item -Recurse EduPaper_Skill\skills\* ~\.your-agent\skills\
 ```
 
-## 使用
+唯一必需的运行时依赖是 **Python 3**（导出脚本）。其余工具按需安装。
 
-1. 将开题报告（PDF/DOCX/MD）放入工作目录
-2. 告诉 WorkBuddy："用 edupaper-orchestrator 批量生成论文"
-3. orchestrator 会依次调用各 Skill，在选题阶段让你选择 ≤2 个选题
-4. 最终论文输出到 `.edupaper/papers/` 目录
+### 使用
 
-## 文档
+1. 准备你的**开题报告**（PDF / DOCX / MD 均可）
+2. 对 agent 说：**"帮我生成论文"** 或 **"基于这份开题报告生成教学案例论文"**
+3. Agent 自动运行 project-parser，然后展示选题菜单
+4. 选一个选题，等待流水线完成
+5. 最终文件在 `.edupaper/exports/` 目录下
 
-- [架构设计](docs/EduPaper_Skill架构设计.md)
-- [集成分析](docs/EduPaper_架构集成分析.md)
+### 导出工具安装
 
-## 约束
+| 平台 | 最简安装 |
+|------|---------|
+| macOS | `brew install pandoc` |
+| Windows | `winget install JohnMacFarlane.Pandoc` |
+| Linux | `sudo apt install pandoc` |
+| 任意平台（备用）| `pip install python-docx` |
 
-- 每次运行只生成 1 篇论文（菜单展示多个选项，用户选一个）
-- 想要更多论文？再跑一次，选不同选题，新论文自动累积
-- 论文类型以教学案例论文为主（1500-3000 字）
-- 所有论文共享同一份课题档案（project.json），保证数据一致
-- 所有引用遵循 GB/T 7714-2015 中文引用格式标准
-- 最终通过 edupaper-humanizer 去 AI 写作痕迹，保留学术内容
+详细安装指引见：
+- [macOS 导出指引](skills/edupaper-exporter/references/export-guide-mac.md)
+- [Windows 导出指引](skills/edupaper-exporter/references/export-guide-windows.md)
 
-## 依赖
+---
 
-- [humanizer](https://github.com/blader/humanizer) — AI 写作痕迹去除（MIT，v2.8.2）
+## 📐 设计原则
 
-## 许可
+本 Skill 参考 [nature-skills](https://github.com/Yuan1z0825/nature-skills) 的架构哲学：
 
-MIT
+1. **单一职责**：每个 Skill 只做一件事，边界清晰，职责不重叠
+2. **文件驱动**：Skill 间通过文件通信，任何平台均适用，可随时中断恢复
+3. **数据驱动而非硬编码**：Skill 不包含任何特定课题数据，所有内容来自运行时的开题报告
+4. **渐进式披露**：SKILL.md 是路由层（简短），深度知识在 `references/` 按需加载
+5. **防幻觉设计**：`verified` 字段标记文献真实性，形成从 reference-manager 到 paper-writer 的闭环
+6. **三次重试协议**：失败上报而非静默跳过，防止错误向下游传播
+
+---
+
+## 🔄 复用其他课题
+
+无需修改任何 Skill 文件，直接提供新的开题报告即可：
+
+```
+新课题开题报告 → project-parser（自动解析新课题信息）→ 后续流水线照常运行
+```
+
+每个项目有自己的 `.edupaper/` 目录，互相隔离：
+
+```
+项目A/
+├── 开题报告A.pdf
+└── .edupaper/
+    ├── project.json   # 课题A的信息
+    ├── topics.json
+    └── ...
+
+项目B/
+├── 开题报告B.pdf
+└── .edupaper/
+    ├── project.json   # 课题B的信息
+    └── ...
+```
+
+---
+
+## 📄 许可证
+
+MIT License

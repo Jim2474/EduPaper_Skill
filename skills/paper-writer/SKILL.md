@@ -32,9 +32,17 @@ Write a complete draft paper for one topic and save it to
 3. Read `.edupaper/materials/{topic-id}/material.json` — all five sections.
 4. Read `.edupaper/references.json` — select entries whose 相关选题 includes
    this topic id, plus 课标文献 and 教材文献 (always cited).
-5. Read `references/paper-structure.md` for the section-by-section spec and
-   word allocation.
-6. Copy `assets/templates/paper.md` as the starting skeleton.
+5. Read `references/paper-structure.md` as the authoritative structure
+   blueprint — follow its section sequence, word allocation, and per-section
+   guidance. This is the primary spec.
+6. Read `assets/templates/paper.md` to understand the placeholder system
+   (`{占位符}` markers, dialogue block format, table format). Use it as a
+   formatting reference, **not** as a file to copy verbatim. Construct the
+   paper from scratch following paper-structure.md; the template shows you
+   what each placeholder slot should contain and how to format it.
+   For non-教学案例 types, adapt section 4 per the "Adaptations" section
+   in paper-structure.md — the template is 教学案例-centric but the spec
+   covers all four types.
 7. Write the paper section by section (see below). Cite using [n] markers
    mapped to references.json entries; use data from material.json verbatim
    where numbers appear.
@@ -66,6 +74,8 @@ Write a complete draft paper for one topic and save it to
 - [ ] 核心概念 from project.json used with correct definitions
 - [ ] 课标文献 cited in 问题提出
 - [ ] No fabricated references — all citations trace to references.json
+- [ ] No cited 期刊文献 entry has `verified: false` — if a candidate entry
+  has `verified: false`, pause and ask user to confirm before including it
 
 ## Constraints
 
@@ -78,3 +88,6 @@ Write a complete draft paper for one topic and save it to
   content completeness.
 - Cite 课标文献 and 教材文献 in every paper; cite 期刊文献 selectively by
   relevance to the topic.
+- **Do not cite any 期刊文献 entry with `verified: false`** without first
+  pausing and confirming with the user. If all available entries for a topic
+  are unverified, report this before writing the paper.

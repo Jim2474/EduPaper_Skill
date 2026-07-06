@@ -1,77 +1,94 @@
 ---
 name: topic-generator
-version: 0.1.0
+version: 0.2.0
 description: |
-  Decompose an education research project into a matrix of independently
-  writable paper topics. This skill should be used after project.json exists
-  and before any materials or papers are generated. It reads the project
-  profile's research content and produces topics.json — a list of 4-6 paper
-  topics, each defined by a knowledge point, a labor scenario, and a research
-  angle. Does not generate materials or write papers. The one-paper-per-run
-  limit is enforced downstream by the orchestrator (user selects one from
-  this matrix); this skill generates the full menu.
-agent_created: true
+  将课题开题报告拆解为独立可写的论文选题矩阵，写入 topics.json（4-6个选题）。
+  在 project.json 存在且 topics.json 不存在时触发。
+  触发词：生成选题 / 拆解选题 / 写几篇论文 / 出选题菜单 / 帮我定选题 /
+  有哪些可以写的论文 / 给我几个选题 / generate topics / 从课题里拆选题。
+  本 skill 根据 project.json 动态生成选题，适用于任何教育科研课题，不局限于
+  特定学科或基地。仅生成选题菜单，不生成素材或论文内容。
+  one-paper 限制由 orchestrator 在用户选题后执行，本 skill 生成全部菜单。
+author: Jim2474
+agent_created: false
 ---
 
 # Topic Generator
 
-Decompose the project into a topic matrix and write it to
-`.edupaper/topics.json`. Each topic is a self-contained paper.
+将课题拆解为选题矩阵，写入 `.edupaper/topics.json`。
+每个选题是一篇独立可写的论文，由三个维度的交叉点定义。
+
+## 启动时加载
+
+1. 读 `../_shared/project-context.md` — 了解 project.json 的字段含义
+2. 读 `.edupaper/project.json` — 获取本课题的实际研究对象、研究内容、劳动基地等
+3. 读 `references/topic-schema.md` — 了解 topics.json 输出格式
 
 ## When to trigger
 
-- `.edupaper/project.json` exists and is valid
-- `.edupaper/topics.json` does not exist or is empty
-- User says "生成选题" / "拆解选题" / "写几篇论文"
+- `.edupaper/project.json` 存在且有效
+- `.edupaper/topics.json` 不存在或为空
+- 用户说"生成选题" / "拆解选题" / "写几篇论文" 或类似表达
 
-## Decomposition formula
+## 选题拆解公式
 
-Each topic = **知识点 × 劳动场景 × 切入点**
+每个选题 = **知识点 × 实践场景 × 研究切入点**
 
-- **知识点**: a specific math concept from the textbook (e.g. 长方形面积)
-- **劳动场景**: a concrete labor activity at the base (e.g. 种植区域测量)
-- **切入点**: the research lens (e.g. 面积量感建构 / 双螺旋设计 / 评价实践)
+三个维度的来源（全部从 project.json 动态读取，不硬编码）：
 
-No two topics may share all three dimensions. Overlap on one or two is fine;
-full overlap is a duplicate.
+```
+知识点 ← project.json.研究设计.研究内容 中涉及的具体学科知识点
+         + project.json.依据.教材 中的单元和章节
+
+实践场景 ← project.json.依据.劳动基地.典型活动（若有劳动基地）
+           或 project.json.研究设计.研究内容 中描述的实践活动
+           或 project.json.依据 中的其他实践情境
+
+研究切入点 ← project.json.研究设计.创新点
+             + project.json.研究设计.研究内容 的研究角度
+             + 教学案例类/评价类/调查类/理论类 等论文类型
+```
+
+**不允许两个选题三个维度全部重叠**（全重叠 = 重复选题）。
+一到两个维度重叠可以（研究角度不同）。
 
 ## Procedure
 
-1. Read `.edupaper/project.json`. Focus on: 研究设计.研究内容, 核心概念,
-   依据.劳动基地, 依据.教材.
-2. Read `references/topic-schema.md` for field definitions and type guidance.
-3. List the knowledge points from 研究内容 (e.g. 面积, 周长, 图形认识).
-4. List the labor scenarios from the 劳动基地 context (e.g. 种植测量, 围栏
-   规划, 区域划分).
-5. List the research angles from 创新点 and 研究方法 (e.g. 量感建构, 双螺旋
-   设计, 评价实践, 现状调查, 理论构建).
-6. Cross-multiply the three lists. Select 4-6 combinations that are
-   meaningful and non-overlapping. Prioritize 教学案例 type (knowledge point
-   + labor scenario + 量感 angle).
-7. Assign IDs (A, B, C…), titles, types, and target word counts.
-8. Write to `.edupaper/topics.json`.
-9. Run the self-check.
-
-## Output
-
-Write to `.edupaper/topics.json` — valid JSON, UTF-8, 2-space indent.
+1. 读 `.edupaper/project.json`，提取：
+   - `研究设计.研究内容` — 列出所有研究子议题
+   - `依据.劳动基地.典型活动`（若有）— 列出实践场景
+   - `研究设计.创新点` — 提取研究切入点
+   - `研究对象.年级` — 确定知识点的学段适配
+   - `依据.教材` — 找到对应的教材单元
+2. 从研究内容中提炼 3-5 个**知识点**（具体到某个数学/学科概念）
+3. 从劳动基地活动或其他实践情境中提炼 3-5 个**实践场景**
+4. 从创新点和研究方法中提炼 3-4 个**研究切入点**
+5. 交叉组合，筛选出 4-6 个**有意义且不重叠**的组合作为选题
+   - 优先保证覆盖 project.json 的所有主要研究内容条目
+   - 教学案例类型优先（通常占 50% 以上）
+   - 至少包含 1 个评价类或调查类（若课题有评价研究）
+6. 为每个选题分配 ID（A、B、C…）、标题、类型、字数目标
+7. 写入 `.edupaper/topics.json`（UTF-8，2空格缩进）
+8. 读 `../_shared/quality-gate.md` 执行通用质量门 + 下方 self-check
 
 ## Self-check (quality gate)
 
-- [ ] 4-6 topics generated
-- [ ] IDs are sequential uppercase letters (A, B, C…)
-- [ ] No two topics share all three of 知识点×场景×切入点
-- [ ] Each topic has a non-empty 标题, 知识点, 劳动场景, 切入点
-- [ ] 类型 is one of: 教学案例 / 评价类 / 调查类 / 理论类
-- [ ] At least 2 topics are 教学案例 type
-- [ ] 字数 is between 1500 and 3000
-- [ ] JSON is valid and parseable
+- [ ] 生成 4-6 个选题
+- [ ] ID 为顺序大写字母（A、B、C…）
+- [ ] 没有两个选题共享全部三个维度（知识点×场景×切入点）
+- [ ] 每个选题有非空的 标题、知识点、实践场景、切入点
+- [ ] 类型限于：教学案例 / 评价类 / 调查类 / 理论类
+- [ ] 教学案例类型 ≥ 2 个
+- [ ] 字数目标在 1500-3000 之间
+- [ ] 选题集合覆盖 project.json 的主要研究内容条目
+- [ ] JSON 有效可解析
 
 ## Constraints
 
-- Do not generate materials or write papers. Only the topic matrix.
-- The one-paper limit is NOT enforced here — generate the full menu (4-6
-  topics). The orchestrator asks the user to pick one after this skill
-  completes.
-- Topics should align with the project's 研究内容 — do not invent knowledge
-  points or scenarios outside the project scope.
+- **只生成选题菜单，不生成素材或论文内容**
+- 知识点必须能从 project.json 中溯源（研究内容或教材依据），不得发明范围外的知识点
+- 实践场景必须能从 project.json 中溯源（劳动基地活动、实践设计或依据描述）
+- 若 project.json 缺少劳动基地信息，用"课堂实践"/"模拟活动"等通用场景替代
+- one-paper 限制由 orchestrator 执行，本 skill 生成全部菜单（4-6个）
+- 选题标题参考格式：`[实践场景动作]中的[知识点][切入点]——以[实践基地/情境]为例`
+  （无劳动基地时简化为：`基于[实践情境]的[知识点][切入点]研究`）

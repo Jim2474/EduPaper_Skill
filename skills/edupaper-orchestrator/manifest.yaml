@@ -1,0 +1,63 @@
+name: edupaper-orchestrator
+version: 0.2.0
+description: >
+  Declarative manifest for the EduPaper pipeline orchestrator.
+  Declares always-load context files and the paper_type axis used
+  to route classroom-generator and paper-writer.
+
+# 每次 orchestrator 启动时必须加载的文件
+always_load:
+  - ../_shared/project-context.md     # 课题专项信息（雅趣园基地、研究对象等）
+  - ../_shared/quality-gate.md        # 统一质量门与重试协议
+  - references/pipeline.md            # 数据流契约与目录规范
+
+# 按需加载（仅当用户请求特定功能时）
+on_demand:
+  export:
+    trigger: "用户请求导出/export/转Word/生成PDF"
+    load:
+      - ../_shared/platform-detect.md
+
+# 轴（axes）：路由下游 skill 时使用的决策维度
+axes:
+  paper_type:
+    description: >
+      论文类型，决定 paper-writer 使用哪种结构，
+      以及 classroom-generator 生成哪类素材。
+    detect: |
+      根据用户选题或用户明确指定判断。
+      默认为教学案例类型。
+      若用户提及"调查"/"问卷"/"现状"，可能是调查类。
+      若用户提及"评价体系"/"量表"/"指标"，可能是评价类。
+      若用户提及"理论"/"综述"/"框架"，可能是理论类。
+    values:
+      teaching_case:    # 教学案例 — 核心类型，占本课题选题80%以上
+        label: "教学案例"
+        description: "基于课堂实录的教学过程记录与分析"
+        paper_structure_section: "references/paper-structure.md (standard)"
+      evaluation:       # 评价类
+        label: "评价类"
+        description: "评价体系设计与实施研究"
+        paper_structure_section: "references/paper-structure.md (评价类 adaptations)"
+      survey:           # 调查类
+        label: "调查类"
+        description: "问卷调查与现状研究"
+        paper_structure_section: "references/paper-structure.md (调查类 adaptations)"
+      theoretical:      # 理论类
+        label: "理论类"
+        description: "理论框架构建与文献综述"
+        paper_structure_section: "references/paper-structure.md (理论类 adaptations)"
+    default: teaching_case
+    multi: false
+
+  resume_mode:
+    description: >
+      是否从已有的 .edupaper/ 目录继续。
+    detect: |
+      如果 .edupaper/project.json 已存在且非空，自动进入 resume 模式。
+      否则为 fresh 模式（从 project-parser 开始）。
+    values:
+      fresh: "从头开始，project-parser 是第一步"
+      resume: "扫描已完成步骤，从第一个缺失输出文件处继续"
+    default: fresh
+    auto_detect: true

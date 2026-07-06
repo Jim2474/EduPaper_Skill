@@ -1,77 +1,98 @@
 ---
 name: edupaper-orchestrator
-version: 0.1.0
+version: 0.2.0
 description: |
-  Education research paper batch-generation pipeline orchestrator. Triggers when
-  a user wants to generate teaching-case papers (教学案例论文) from an education
-  research project opening report (开题报告). Routes the agent through a sequence
-  of single-responsibility skills that transform the opening report into a paper
-  collection. Enforces a hard limit of one paper per run — the topic
-  menu shows multiple options but the user picks one. Delegates all actual
-  work to downstream skills — this skill only sequences and routes.
-agent_created: true
+  教育科研课题论文批量生成流水线编排器。当用户提供教学案例论文相关的开题报告
+  或希望生成教学论文时触发。适用于任何学科的小学/中学教育科研课题论文生成。
+  每次运行生成一篇论文，用户从选题菜单中选一个，流水线自动完成后续步骤。
+  触发词：生成论文 / 写论文 / 帮我写教学案例 / 批量出论文 / 跑论文流程 /
+  开始生成 / 出一篇论文 / 生成教学案例论文 / 写一篇教学论文 / 基于开题报告
+  生成论文 / generate paper / write teaching case / 继续生成论文 / 接着写 /
+  从上次继续 / 继续流程 / 论文流水线 / 帮我生成一篇课题论文。
+  本 skill 不执行任何实际生成工作——仅负责路由和编排，所有生成工作委派给下游 skill。
+author: Jim2474
+agent_created: false
 ---
 
 # EduPaper Orchestrator
 
-Route the user through the paper-generation pipeline. Do not perform any
-generation work directly — delegate each stage to its dedicated skill.
+将用户的一份课题开题报告，通过 9 个单一职责 skill 的流水线，转化为符合学术规范
+的教学案例论文。**每次只生成 1 篇论文**，用户从选题菜单中选一个。
 
-## When to trigger
+## 启动时加载
 
-- User provides an opening report (开题报告) and wants papers generated
-- User says "生成论文" / "跑论文流程" / "批量出论文"
-- User asks to continue an existing `.edupaper/` project
+在执行任何操作之前，先读取以下文件，建立全局上下文：
 
-## Hard constraint
+1. `manifest.yaml` — 读取 always_load 列表和 axes 配置
+2. 按 manifest 的 `always_load` 依次加载：
+   - `../_shared/project-context.md` — project.json 字段含义参考（schema 文档）
+   - `../_shared/quality-gate.md` — 统一质量门与重试协议
+   - `references/pipeline.md` — 数据流契约与目录规范
 
-Generate exactly **one paper per run**. The topic menu shows multiple
-options (4-6 topics), but the user selects one. Never generate more than
-one paper per run — if the user wants another paper, they run the pipeline
-again and pick a different topic.
+## 前置依赖检测
 
-## Pipeline sequence
+在正式启动流水线前，检测可选外部依赖，提前告知用户：
 
-Execute in order. Each step's output file is the next step's input.
+```
+□ humanizer skill 是否已安装？
+  → 未安装：提示"第8步 humanize 将跳过，直接输出 paper.md 作为最终稿"
+  → 已安装：正常流程
 
-1. **project-parser** — opening report → `.edupaper/project.json`
-2. **reference-manager** — project.json → `.edupaper/references.json`
-3. **topic-generator** — project.json → `.edupaper/topics.json`
-4. **classroom-generator** — (per selected topic) → `.edupaper/materials/{id}/material.json`
-5. **paper-writer** — material.json + references.json → `.edupaper/drafts/{id}/paper.md`
-6. **paper-reviewer** — paper.md → `.edupaper/drafts/{id}/reviewed.md`
-7. **edupaper-humanizer** — reviewed.md → `.edupaper/drafts/{id}/final.md`
-8. **consistency-checker** — all final.md → `.edupaper/consistency-report.md`
-9. **edupaper-exporter** — papers/*.md → `.edupaper/exports/` (DOCX + PDF + HTML)
+□ pandoc 是否可用（pandoc --version）？
+  → 不可用：提示"第9步导出将使用 Python 备用方案，不支持 PDF"
+  → 可用：正常流程
+```
 
-After step 8, copy each `final.md` into `.edupaper/papers/{id}-标题.md`.
-After step 9, exported files are in `.edupaper/exports/{id}-标题.{docx,pdf,html}`.
+以上缺失**不阻断**流程，仅提前告知。
 
-## Routing rules
+## Hard Constraint（硬约束）
 
-- Read `references/pipeline.md` for the full data-flow contract, file-naming
-  conventions, and the `.edupaper/` directory layout before starting.
-- Before each stage, verify the input file exists. If missing, run the
-  upstream stage first.
-- After each stage, confirm the output file was written before proceeding.
-- If a stage fails after three self-check retries, pause and report to the
-  user — do not skip ahead.
-- Steps 4–7 run once for the single selected topic.
-- Step 8 (consistency-checker) runs if any papers from previous runs exist
-  in `.edupaper/drafts/`; for the first run with only one paper, it does a
-  single-paper sanity pass.
+**每次运行只生成 1 篇论文。** 选题菜单展示 4-6 个选项，用户选一个。
+若用户想要多篇，重新运行选不同选题——已完成的阶段自动跳过（resume 逻辑）。
 
-## Shared read-only data
+## Pipeline 执行顺序
 
-Two files are shared across all skills as read-only (except their writer):
+每一步的输出文件是下一步的输入。每步完成后验证输出文件存在且非空再继续。
 
-- `.edupaper/project.json` — written only by project-parser
-- `.edupaper/references.json` — written only by reference-manager
+| 步骤 | Skill | 输入 | 输出 |
+|------|-------|------|------|
+| 1 | **project-parser** | 开题报告（PDF/DOCX/MD）| `.edupaper/project.json` |
+| 2 | **reference-manager** | project.json | `.edupaper/references.json` |
+| 3 | **topic-generator** | project.json | `.edupaper/topics.json`（4-6个选题） |
+| — | **用户选题** | topics.json | 用户选定一个 topic-id |
+| 4 | **classroom-generator** | project.json + 选定 topic | `.edupaper/materials/{id}/material.json` |
+| 5 | **paper-writer** | project.json + material.json + references.json | `.edupaper/drafts/{id}/paper.md` |
+| 6 | **paper-reviewer** | paper.md + project.json + material.json | `.edupaper/drafts/{id}/review-report.md` |
+| 7 | **consistency-checker** | 所有 paper.md + review-report.md | `.edupaper/consistency-report.md` |
+| 8 | **edupaper-humanizer** | paper.md（consistency 通过后）| `.edupaper/drafts/{id}/final.md` |
+| 9 | **edupaper-exporter** | papers/*.md | `.edupaper/exports/{id}-标题.{docx,pdf,html}` |
 
-All other skills read these two files but never modify them.
+步骤 8 完成后：将 `final.md` 复制到 `.edupaper/papers/{id}-标题.md`。
 
-## Resuming
+## 路由规则
 
-If `.edupaper/` already exists, scan for completed stages and resume from the
-first missing output file. Do not regenerate files that already exist unless
-the user explicitly requests a redo.
+- 读 `references/pipeline.md` 获取完整数据流契约、文件命名规范、目录布局
+- 每步开始前验证输入文件存在；缺失则运行上游 skill
+- 每步结束后确认输出文件已写入；确认后再进入下一步
+- 若某 skill 三次 self-check 重试后仍失败，**暂停并上报用户**，不跳过
+- 步骤 4-8 针对用户选定的**单个** topic-id 运行
+- **步骤 7（consistency-checker）必须在步骤 8（humanizer）之前完成**；
+  consistency-checker 返回 CONSISTENT 或 SINGLE-PAPER BASELINE 后才允许进入步骤 8
+- 步骤 8（edupaper-humanizer）的输入是 `paper.md`（草稿），不是 review-report.md
+
+## 共享只读数据源
+
+两个文件被所有下游 skill 共享读取，但只有其指定写入 skill 可修改：
+
+- `.edupaper/project.json` — **只由 project-parser 写**
+- `.edupaper/references.json` — **只由 reference-manager 写**
+
+## Resume 逻辑
+
+若 `.edupaper/` 目录已存在，扫描各步骤的期望输出文件：
+- 文件存在且非空 → 跳过该步骤（已完成）
+- 文件存在但为空或格式错误 → 重新生成
+- 文件不存在 → 运行该步骤
+
+从第一个缺失输出文件处继续，不重新生成已完成的工作。
+想要第二篇论文？选不同 topic，steps 1-3 自动跳过，从步骤 4 开始。
