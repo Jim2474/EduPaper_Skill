@@ -32,26 +32,22 @@ agent_created: false
 
 ## 导出决策树
 
-在运行任何导出命令之前，先检测环境：
+在运行任何导出命令之前，先检测环境。默认情况下仅导出 DOCX 格式（若用户无特别指定）：
 
 ```
-pandoc 可用?
-├── YES → xelatex 可用?
-│   ├── YES → 导出 DOCX + PDF + HTML（全功能）
-│   └── NO  → 导出 DOCX + HTML；告知"PDF需要安装LaTeX"
-└── NO  → python-docx 可用?
-    ├── YES → 导出 DOCX（基础格式）；告知"HTML需要pandoc"
-    └── NO  → 输出安装指引，不导出
+默认流程：
+- 导出 DOCX (优先使用 pandoc，若无则使用 python-docx 降级导出)
+- 若用户明确要求 PDF 且 xelatex 可用，或明确要求 HTML 且 pandoc 可用，则按需导出对应格式。
 ```
 
 ## Procedure
 
 1. 读 `../_shared/platform-detect.md`，检测平台和工具可用性（参考其中的检测代码）。
 2. 根据平台选择中文字体（参考 `platform-detect.md` 中的 FONT_MAP）。
-3. 向用户展示检测结果（平台、可用工具、将导出哪些格式）。
-4. 运行 `scripts/export_all.py` 执行实际导出：
+3. 向用户展示检测结果（平台、可用工具，默认仅导出 DOCX）。
+4. 运行 `scripts/export_all.py` 执行实际导出（默认仅导出 docx）：
    ```
-   python scripts/export_all.py <input.md> --formats docx,pdf,html --output-dir .edupaper/exports/
+   python scripts/export_all.py <input.md> --formats docx --output-dir .edupaper/exports/
    ```
    - Windows：`python` 或 `py`（取决于安装方式）
    - macOS/Linux：`python3`

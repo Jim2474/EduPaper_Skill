@@ -254,8 +254,8 @@ def print_install_guide(caps):
 def main():
     parser = argparse.ArgumentParser(description='EduPaper 跨平台论文导出工具')
     parser.add_argument('input', help='输入 Markdown 文件路径')
-    parser.add_argument('--formats', default='docx,html',
-                        help='导出格式，逗号分隔，如 docx,pdf,html（默认 docx,html）')
+    parser.add_argument('--formats', default='docx',
+                        help='导出格式，逗号分隔，如 docx,pdf,html（默认 docx）')
     parser.add_argument('--output-dir', default=None,
                         help='输出目录（默认为输入文件所在目录的 ../../exports/）')
     args = parser.parse_args()

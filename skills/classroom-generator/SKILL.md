@@ -46,8 +46,12 @@ agent_created: false
 2. 根据选题的知识点和实践场景，确定课堂活动的具体形式。
 3. 生成五个素材部分（详见下方）。每个部分的细节都要具体，不能泛化。
 4. 数据素材中的数字必须内部一致（前后测均分、提升幅度、样本数与 project.json 匹配）。
-5. 写入 `.edupaper/materials/{topic-id}/material.json`（UTF-8，2空格缩进）。
-6. 读 `../_shared/quality-gate.md` 执行通用质量门 + 下方 self-check。
+5. **问卷调查生成（联动逻辑）**：检测 `project.json.研究设计.研究方法` 是否包含 `问卷调查法`。若是，则同步在 `.edupaper/surveys/` 目录下生成三个调查文件：
+   - `student-questionnaire.md`（包含 10-12 道关于几何量感表象、估测信心、劳动与数学结合兴趣的单选或量表题）。
+   - `teacher-questionnaire.md`（包含 8-10 道关于度量教学痛点、户外活动组织难度、项目评价手段的教师调查题）。
+   - `survey-report.md`（问卷调查分析报告。样本量必须与 `project.json` 研究对象完全一致，即实验班与对照班各 120 人，共 240 人。包含各项问题的关键数据占比与对比分析）。
+6. 写入 `.edupaper/materials/{topic-id}/material.json`（UTF-8，2空格缩进）。
+7. 读 `../_shared/quality-gate.md` 执行通用质量门 + 下方 self-check。
 
 ## 五个素材部分
 
@@ -92,6 +96,7 @@ agent_created: false
 - [ ] 所有数字与 project.json.研究对象 的班级人数一致
 - [ ] 学生对话语言符合 project.json 研究对象年级的表达水平
 - [ ] 具体细节 ≥ 3 处（具体数字、具体物品、具体操作步骤）
+- [ ] **问卷联动检查**：若项目要求问卷调查，验证 `.edupaper/surveys/` 目录下 `student-questionnaire.md`、`teacher-questionnaire.md` 和 `survey-report.md` 存在且非空，报告数据（如样本数、学校等）与 project.json 完全吻合。
 - [ ] JSON 有效可解析
 
 ## Constraints

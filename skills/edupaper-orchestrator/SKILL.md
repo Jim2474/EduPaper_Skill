@@ -60,8 +60,8 @@ agent_created: false
 | 2 | **reference-manager** | project.json | `.edupaper/references.json` |
 | 3 | **topic-generator** | project.json | `.edupaper/topics.json`（4-6个选题） |
 | — | **用户选题** | topics.json | 用户选定一个 topic-id |
-| 4 | **classroom-generator** | project.json + 选定 topic | `.edupaper/materials/{id}/material.json` |
-| 5 | **paper-writer** | project.json + material.json + references.json | `.edupaper/drafts/{id}/paper.md` |
+| 4 | **classroom-generator** | project.json + 选定 topic | `.edupaper/materials/{id}/material.json` 及（若有问卷要求）.edupaper/surveys/* |
+| 5 | **paper-writer** | project.json + material.json + references.json +（可选）surveys/* | `.edupaper/drafts/{id}/paper.md` |
 | 6 | **paper-reviewer** | paper.md + project.json + material.json | `.edupaper/drafts/{id}/review-report.md` |
 | 7 | **consistency-checker** | 所有 paper.md + review-report.md | `.edupaper/consistency-report.md` |
 | 8 | **edupaper-humanizer** | paper.md（consistency 通过后）| `.edupaper/drafts/{id}/final.md` |
@@ -76,6 +76,7 @@ agent_created: false
 - 每步结束后确认输出文件已写入；确认后再进入下一步
 - 若某 skill 三次 self-check 重试后仍失败，**暂停并上报用户**，不跳过
 - 步骤 4-8 针对用户选定的**单个** topic-id 运行
+- **问卷调查联动路由**：若 `project.json.研究设计.研究方法` 中包含 `问卷调查法`，步骤 4 必须触发生成问卷和调查报告；步骤 5 在撰写论文时必须读取并融入这部分数据。
 - **步骤 7（consistency-checker）必须在步骤 8（humanizer）之前完成**；
   consistency-checker 返回 CONSISTENT 或 SINGLE-PAPER BASELINE 后才允许进入步骤 8
 - 步骤 8（edupaper-humanizer）的输入是 `paper.md`（草稿），不是 review-report.md
