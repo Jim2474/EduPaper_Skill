@@ -1,16 +1,13 @@
 ---
 name: edupaper-humanizer
-version: 0.1.0
+version: 0.2.0
 description: |
-  The final stage of the EduPaper pipeline — removes AI writing patterns from
-  a draft paper while preserving academic structure, citations, and data.
-  This is a thin wrapper around the installed `humanizer` skill
-  (~/.workbuddy/skills/humanizer/), adapting it to the pipeline's I/O
-  contract and adding academic-paper guardrails. Reads paper.md (after
-  consistency-checker passes), applies the humanizer's 33 AI-pattern checks,
-  writes final.md. Runs last, one paper at a time. Does not change content
-  meaning — only writing style.
-agent_created: true
+  对论文进行去 AI 痕迹和学术润色。当论文通过评审和一致性检查后，需要消除其中的 AI 写作
+  模式（如口水话、过度过渡句），同时严格保留学术结构、引用及真实实验数据时触发。
+  触发词：论文润色 / 去AI痕迹 / 去除AI感 / 降低AI率 / humanize paper / 学术润色 /
+  论文降重 / 降低AI写作率。
+  本 skill 作为最终抛光阶段运行，输入 paper.md，输出 final.md。
+agent_created: false
 ---
 
 # EduPaper Humanizer

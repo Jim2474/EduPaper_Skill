@@ -1,15 +1,13 @@
 ---
 name: consistency-checker
-version: 0.1.0
+version: 0.2.0
 description: |
-  Check cross-paper consistency across all papers in a batch. Reads every
-  paper.md and review-report.md under .edupaper/drafts/, plus project.json
-  and references.json, then writes a single consistency-report.md. This
-  skill catches contradictions between papers (e.g. one paper says the base
-  is 200㎡, another says 150㎡), duplicated content, terminology drift, and
-  coverage gaps. Runs after all papers are reviewed, before humanizer.
-  Distinct from paper-reviewer (single-paper quality) — this is batch-level.
-agent_created: true
+  检查批次论文之间的跨篇一致性。当有多篇论文草稿或评审报告存在，需要核对学校名称、
+  劳动基地面积等共享事实是否一致，确保没有内容重复、术语漂移或文献引用冲突时触发。
+  触发词：一致性检查 / 跨论文核对 / 论文一致性 / consistency check / 检查重复内容 /
+  拼写一致性检查 / 共享事实验证。
+  本 skill 仅输出批次一致性报告（consistency-report.md），不直接修改论文。
+agent_created: false
 ---
 
 # Consistency Checker

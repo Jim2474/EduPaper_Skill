@@ -1,15 +1,13 @@
 ---
 name: paper-writer
-version: 0.1.0
+version: 0.2.0
 description: |
-  Write the draft teaching-case paper for a single topic. Reads project.json,
-  material.json, references.json, and the topic entry from topics.json, then
-  produces a complete paper.md following the teaching-case structure. This
-  skill is the prose-writing stage — it transforms raw materials into
-  publishable academic prose with proper citations and data integration.
-  Runs after classroom-generator. Does not review or polish — that is
-  paper-reviewer and humanizer's job.
-agent_created: true
+  撰写单个选题的教学案例论文或教学论文草稿。当需要根据教学素材（material.json）、
+  课题基本信息（project.json）和文献库（references.json）撰写具体的论文正文时触发。
+  触发词：撰写论文 / 写论文草稿 / 论文初稿生成 / write draft paper / paper writing /
+  开始写论文 / 论文写作 / 生成论文正文。
+  本 skill 仅负责论文草稿撰写（生成 paper.md），不进行评审或去 AI 痕迹润色。
+agent_created: false
 ---
 
 # Paper Writer

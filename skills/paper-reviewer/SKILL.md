@@ -1,15 +1,13 @@
 ---
 name: paper-reviewer
-version: 0.1.0
+version: 0.2.0
 description: |
-  Perform adversarial academic review on a single draft paper. Reads paper.md
-  and cross-checks it against project.json, material.json, and references.json
-  to catch structure gaps, citation errors, data mismatches, logical breaks,
-  and terminology inconsistencies. This skill simulates a journal reviewer's
-  perspective — it does not rewrite the paper, only produces a review report
-  with pass/fail per dimension and actionable fix suggestions. Runs after
-  paper-writer and before humanizer. One paper at a time.
-agent_created: true
+  对单篇论文草稿进行对抗性学术评审。当需要对生成的 paper.md 进行结构完整性、
+  数据一致性、文献引用准确性、术语一致性等多维度校验并生成评审报告时触发。
+  触发词：评审论文 / 审查论文 / 论文批改 / 论文纠错 / paper review / review report /
+  检查论文格式 / 评估论文质量 / 对抗性评审。
+  本 skill 仅输出评审报告（review-report.md），不直接修改论文内容。
+agent_created: false
 ---
 
 # Paper Reviewer
