@@ -2,14 +2,21 @@
 name: edupaper-orchestrator
 version: 0.2.0
 description: |
-  教育科研课题论文批量生成流水线编排器。当用户提供教学案例论文相关的开题报告
-  或希望生成教学论文时触发。适用于任何学科的小学/中学教育科研课题论文生成。
-  每次运行生成一篇论文，用户从选题菜单中选一个，流水线自动完成后续步骤。
-  触发词：生成论文 / 写论文 / 帮我写教学案例 / 批量出论文 / 跑论文流程 /
-  开始生成 / 出一篇论文 / 生成教学案例论文 / 写一篇教学论文 / 基于开题报告
-  生成论文 / generate paper / write teaching case / 继续生成论文 / 接着写 /
-  从上次继续 / 继续流程 / 论文流水线 / 帮我生成一篇课题论文。
-  本 skill 不执行任何实际生成工作——仅负责路由和编排，所有生成工作委派给下游 skill。
+  教育科研课题论文全流程编排器（9步流水线）。接收一份课题开题报告（或课题申报书/研究方案），
+  自动运行 project-parser → reference-manager → topic-generator → classroom-generator →
+  paper-writer → paper-reviewer → consistency-checker → humanizer → exporter，最终输出
+  Word/PDF/HTML 格式的教学案例论文。每次生成一篇，用户从菜单选题后流水线自动完成。
+
+  务必在以下情形调用本 skill（即使用户未明确提到"流水线"）：
+  - 用户有开题报告/课题申报书/研究方案（PDF/DOCX/MD），想据此生成论文
+  - 用户要"一键出论文"、"跑完整流程"、"批量出论文"、"帮我出几篇课题论文"
+  - 用户想继续上次未完成的论文生成（"接着写"、"从上次继续"、"继续流程"）
+  - Trigger phrases: generate teaching paper / run full paper pipeline /
+    end-to-end paper generation / batch papers from research proposal /
+    continue paper pipeline / pick up where we left off /
+    one-click paper / get a Word paper from my proposal
+  本 skill 仅负责编排路由，不写具体内容。用户若单独要求评审、润色或写某一章节，
+  应触发对应的下游 skill（paper-writer/paper-reviewer），而非本 orchestrator。
 author: Jim2474
 agent_created: false
 ---

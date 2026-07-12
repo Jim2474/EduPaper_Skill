@@ -23,6 +23,7 @@ agent_created: false
 3. 读 `.edupaper/topics.json` 中选定 topic 的条目 — 获取知识点、实践场景、切入点
 4. 读 `references/material-schema.md` — 了解 material.json 五个部分的字段定义
 5. 读 `references/textbook-guide.md` — 找到该知识点对应的教材单元和页码
+6. 读 `assets/templates/lesson-plan.md` — 教学设计部分的标准模板格式（环节结构、目标写法、教学过程表影格式）
 
 ## When to trigger
 

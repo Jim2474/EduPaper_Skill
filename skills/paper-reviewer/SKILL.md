@@ -21,6 +21,11 @@ Review one draft paper and write a structured review report to
 - `.edupaper/drafts/{topic-id}/review-report.md` does not exist
 - User has asked to review a specific topic, or orchestrator routes here
 
+## 启动时加载
+
+1. 读 `../_shared/project-context.md` — 了解 project.json 字段含义
+2. 读 `references/review-dimensions.md` — 六个评审维度的判定标准
+
 ## Procedure
 
 1. Read `.edupaper/drafts/{topic-id}/paper.md` (the draft under review).
@@ -38,7 +43,7 @@ Review one draft paper and write a structured review report to
 9. Compute overall verdict: PASS (≤2 minor issues) / REVISE (any major) /
    REJECT (structure broken or data fabricated).
 10. Write to `.edupaper/drafts/{topic-id}/review-report.md`.
-11. Run the self-check.
+11. 读 `../_shared/quality-gate.md` 执行通用质量门 + 下方 self-check。
 
 ## Six review dimensions
 

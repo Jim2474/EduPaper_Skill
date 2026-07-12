@@ -30,7 +30,8 @@ Write a complete draft paper for one topic and save it to
 4. **问卷调查数据读取（若存在）**：检测 `.edupaper/surveys/survey-report.md` 是否存在，若存在则读取其中的调查问卷数据、维度分析及各项百分比指标。
 5. 读 `.edupaper/references.json` — select entries whose 相关选题 includes this topic id, plus 课标文献 and 教材文献 (always cited).
 6. 读 `references/paper-structure.md` as the authoritative structure blueprint — follow its section sequence, word allocation, and per-section guidance.
-7. 读 `assets/templates/paper.md` to understand the placeholder system (`{占位符}` markers, dialogue block format, table format). Construct the paper from scratch following paper-structure.md; the template shows you what each placeholder slot should contain and how to format it.
+7. 读 `references/format-spec.md` for detailed formatting rules (heading levels, citation format, table structure, dialogue block syntax). Apply these throughout writing.
+8. 读 `assets/templates/paper.md` to understand the placeholder system (`{占位符}` markers, dialogue block format, table format). Construct the paper from scratch following paper-structure.md; the template shows you what each placeholder slot should contain and how to format it.
 8. 撰写论文各章节（见下方说明）。**问卷数据整合规则**：若有问卷数据，必须在论文中强力编织问卷分析：
    - 在 **问题提出** 中：引用问卷前测发现（如“问卷调查显示，有 XX% 的学生对平方米无直观表象”），作为本教学设计的现实依据。
    - 在 **教学设计与实施（教学效果数据）** 中：除了测试分数对比表格，必须增加问卷后测百分比分析（如学习兴趣提升、估测信心变化，引用的百分比须与 survey-report.md 一致），并列举 1-2 道典型问卷题目。

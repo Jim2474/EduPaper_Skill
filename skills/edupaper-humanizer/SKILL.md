@@ -27,6 +27,12 @@ Humanize one draft paper and write the final version to
 
 ## Procedure
 
+0. **前置依赖检测（所有其他步骤之前）**：检查外部 humanizer skill 是否可用。
+   - 检测路径：`~/.workbuddy/skills/humanizer/SKILL.md`（优先）或 `~/.claude/skills/humanizer/SKILL.md`
+   - **若不存在**：立即告知用户"humanizer skill 未安装，第8步将跳过，直接将 paper.md 复制为 final.md"。
+     将 `paper.md` 内容原样复制到 `final.md`，跳过步骤 5-6，直接执行步骤 7（self-check 按"无 humanizer"模式执行）。
+   - **若存在**：继续正常流程。
+
 1. Read `.edupaper/drafts/{topic-id}/paper.md` — this is the draft to
    humanize. This is the **primary input** to the humanizer.
 2. Read `.edupaper/drafts/{topic-id}/review-report.md` — verify there are

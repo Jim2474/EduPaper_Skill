@@ -85,6 +85,7 @@ pandoc input.md -o output.pdf --pdf-engine=xelatex `
 - [ ] 请求格式中至少有一个导出成功（DOCX / PDF / HTML）
 - [ ] 导出文件大小 > 0 字节
 - [ ] 论文标题出现在 DOCX 或 HTML 文件中（格式未损坏）
+- [ ] DOCX 导出后：用 python-docx 根读取文件并打印前 50 个字符，确认中文内容可读（非乱码）
 - [ ] 若 PDF 导出失败，已向用户说明原因和安装方法
 
 ## Constraints
