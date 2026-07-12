@@ -34,9 +34,14 @@ Write a complete draft paper for one topic and save it to
 8. 撰写论文各章节（见下方说明）。**问卷数据整合规则**：若有问卷数据，必须在论文中强力编织问卷分析：
    - 在 **问题提出** 中：引用问卷前测发现（如“问卷调查显示，有 XX% 的学生对平方米无直观表象”），作为本教学设计的现实依据。
    - 在 **教学设计与实施（教学效果数据）** 中：除了测试分数对比表格，必须增加问卷后测百分比分析（如学习兴趣提升、估测信心变化，引用的百分比须与 survey-report.md 一致），并列举 1-2 道典型问卷题目。
-9. 追加参考文献列表，使用 GB/T 7714-2015 格式。
-10. 写入 `.edupaper/drafts/{topic-id}/paper.md`。
-11. 读 `../_shared/quality-gate.md` 执行通用质量门 + 下方 self-check。
+9. **字数硬验证（写入前）**：统计全文汉字数量（不含标题、参考文献区）。
+   - 目标区间：topic 的 `字数` ±10%（通常 2250–2750）
+   - 若超出上限（>字数×1.1）：找出最长的子章节，压缩至核心观点；删除冗余过渡句；附录内容移至独立 MD 文件，不计入正文字数。
+   - 若低于下限（<字数×0.9）：在教学反思或问题提出中补充具体事例。
+   - 确认在范围内后再执行步骤 10。
+10. **引用双向核对（写入前）**：列出 `[1]...[n]` 所有编号 → 确认每个编号在正文中至少出现一次 → 确认参考文献区每条都有对应编号引用。孤儿条目（有编号无引用）必须删除或在正文中补充引用，不得留在参考文献区。
+11. 写入 `.edupaper/drafts/{topic-id}/paper.md`。
+12. 读 `../_shared/quality-gate.md` 执行通用质量门 + 下方 self-check。
 
 ## Sections (teaching-case type)
 
@@ -51,9 +56,9 @@ Write a complete draft paper for one topic and save it to
 ## Self-check (quality gate)
 
 - [ ] All seven sections present and non-empty
-- [ ] Word count within topic's 字数 ±10% (1500-3000 range)
+- [ ] **汉字计数在目标 ±10% 范围内**（附录不计入正文字数）：实际 _____ 字，目标 _____ 字
 - [ ] Every [n] citation has a matching entry in 参考文献
-- [ ] Every 参考文献 entry is cited at least once in body
+- [ ] **Every 参考文献 entry is cited at least once in body**（逐条核对，无孤儿条目）
 - [ ] Data in paper matches material.json 数据素材 (numbers identical)
 - [ ] **问卷数据整合校验**：若有问卷要求，论文中必须包含对问卷设计维度、典型问题（至少列出一道）及后测百分比数据的定量分析，且数据与 survey-report.md 完全一致。
 - [ ] At least 2 dialogue fragments from 课堂实录 woven into 教学设计与实施

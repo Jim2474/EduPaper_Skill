@@ -1,0 +1,149 @@
+{
+  "skill_name": "edupaper-skill-suite",
+  "version": "0.2.0",
+  "description": "Evaluation suite for the three most critical EduPaper skills: project-parser, paper-writer, and edupaper-orchestrator",
+  "evals": [
+    {
+      "id": 1,
+      "name": "parse-real-opening-report",
+      "skill": "project-parser",
+      "prompt": "请解析这份教育科研课题开题报告并建立课题档案：/Users/jim./WorkBuddy/2026-07-05-20-24-11/开题报告_李金兰.pdf\n将结果写入 .edupaper/project.json。",
+      "files": ["/Users/jim./WorkBuddy/2026-07-05-20-24-11/开题报告_李金兰.pdf"],
+      "expected_output": "A valid .edupaper/project.json file containing all required fields extracted from the PDF opening report. Missing fields should be marked with __MISSING__ and reported to user, not silently omitted.",
+      "assertions": [
+        {
+          "id": "pp-1",
+          "name": "project_json_exists_and_valid",
+          "description": "Output file .edupaper/project.json exists and is valid JSON (parseable)",
+          "type": "file_exists_and_parseable_json"
+        },
+        {
+          "id": "pp-2",
+          "name": "meta_课题名称_nonempty",
+          "description": "meta.课题名称 field is non-empty string",
+          "type": "json_field_nonempty",
+          "path": "meta.课题名称"
+        },
+        {
+          "id": "pp-3",
+          "name": "研究对象_总人数_positive_integer",
+          "description": "研究对象.总人数 field is a positive integer",
+          "type": "json_field_positive_integer",
+          "path": "研究对象.总人数"
+        },
+        {
+          "id": "pp-4",
+          "name": "missing_fields_reported",
+          "description": "Any __MISSING__ fields are explicitly listed and reported to user (not silently omitted or guessed as real data)",
+          "type": "llm_judge",
+          "rubric": "Check the agent's response text: if any field contains __MISSING__, the agent must have explicitly listed those fields to the user. If all fields are filled but some seem implausibly precise (e.g., exact page numbers not in PDF), that's a fabrication fail."
+        },
+        {
+          "id": "pp-5",
+          "name": "self_check_executed",
+          "description": "Agent ran the self-check checklist (all 9 items) before finishing",
+          "type": "llm_judge",
+          "rubric": "Look for evidence in the agent's output that it verified: required fields non-null, meta.课题名称 non-empty, 研究对象.总人数 positive, 术语表 complete, 成员分工 exists, 依据.课标/教材 non-empty, 研究设计.研究内容 non-empty, __MISSING__ list reported, JSON valid."
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "write-teaching-case-paper",
+      "skill": "paper-writer",
+      "prompt": "请根据已有的课题档案和课堂素材，为选题A（实地测量种植区域中的长方形面积量感建构——以"雅趣园"基地实践为例）撰写约2500字的教学案例类论文草稿，写入 .edupaper/drafts/A/paper.md。",
+      "files": [
+        "/Users/jim./WorkBuddy/2026-07-05-20-24-11/EduPaper_Skill/.edupaper/project.json",
+        "/Users/jim./WorkBuddy/2026-07-05-20-24-11/EduPaper_Skill/.edupaper/references.json",
+        "/Users/jim./WorkBuddy/2026-07-05-20-24-11/EduPaper_Skill/.edupaper/topics.json",
+        "/Users/jim./WorkBuddy/2026-07-05-20-24-11/EduPaper_Skill/.edupaper/materials/A/material.json"
+      ],
+      "expected_output": "A complete academic paper at .edupaper/drafts/A/paper.md with all 7 required sections, ~2500 words, proper GB/T 7714 citations, and data that exactly matches material.json numbers.",
+      "assertions": [
+        {
+          "id": "pw-1",
+          "name": "paper_md_exists_nonempty",
+          "description": "Output file drafts/A/paper.md exists and is non-empty",
+          "type": "file_exists_nonempty"
+        },
+        {
+          "id": "pw-2",
+          "name": "seven_sections_present",
+          "description": "All 7 required sections present: 标题, 摘要+关键词, 一(问题提出), 二(教学设计与实施), 三(教学反思), 四(结语), 参考文献",
+          "type": "llm_judge",
+          "rubric": "Read the paper.md content. Check that these 7 structural elements are ALL present: (1) title line, (2) 摘要 and 关键词, (3) 一、or 第一节 for 问题提出, (4) 二、or 第二节 for 教学设计与实施, (5) 三、or 第三节 for 教学反思, (6) 四、or 第四节 for 结语, (7) 参考文献 section. PASS if all 7 present."
+        },
+        {
+          "id": "pw-3",
+          "name": "word_count_in_range",
+          "description": "Paper word count (Chinese characters) is between 2250 and 2750",
+          "type": "script",
+          "script": "count Chinese characters in paper.md and check 2250 <= count <= 2750"
+        },
+        {
+          "id": "pw-4",
+          "name": "citations_bidirectional_match",
+          "description": "Every [n] in body has matching entry in 参考文献, and every 参考文献 entry is cited at least once",
+          "type": "llm_judge",
+          "rubric": "Scan the paper for [1], [2] etc citation markers. List them. Then check 参考文献 section — it should have corresponding numbered entries. Also verify every numbered reference appears as a citation somewhere in the body. Report PASS/FAIL with specific mismatches."
+        },
+        {
+          "id": "pw-5",
+          "name": "data_matches_material_json",
+          "description": "Key numbers in paper (前测均分 53.4, 后测均分 81.6, 样本数 240) exactly match material.json",
+          "type": "llm_judge",
+          "rubric": "Find numeric data in paper: experimental class pre-test score, post-test score, control class scores, sample sizes, improvement margins. Compare with material.json values (实验班前测53.4, 后测81.6, 对照班前测52.8, 后测64.2, 总人数240). PASS if all match exactly. FAIL if any number differs."
+        },
+        {
+          "id": "pw-6",
+          "name": "classroom_dialogue_present",
+          "description": "At least 2 classroom dialogue fragments (师：/生：format) woven into 教学设计 section",
+          "type": "llm_judge",
+          "rubric": "Look for dialogue blocks in the format '师：...' and '生：...' or '> 师：' / '> 生：'. Count distinct dialogue exchanges. PASS if ≥ 2 separate dialogue fragments present in the body."
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "orchestrator-routing-and-resume",
+      "skill": "edupaper-orchestrator",
+      "prompt": "我有一个教育科研课题要写论文，开题报告在 /Users/jim./WorkBuddy/2026-07-05-20-24-11/开题报告_李金兰.pdf，请帮我运行论文生成流水线。注意：.edupaper/project.json、.edupaper/references.json、.edupaper/topics.json 已经存在，请正确使用 resume 逻辑跳过已完成步骤。",
+      "files": [
+        "/Users/jim./WorkBuddy/2026-07-05-20-24-11/EduPaper_Skill/.edupaper/project.json",
+        "/Users/jim./WorkBuddy/2026-07-05-20-24-11/EduPaper_Skill/.edupaper/references.json",
+        "/Users/jim./WorkBuddy/2026-07-05-20-24-11/EduPaper_Skill/.edupaper/topics.json"
+      ],
+      "expected_output": "Orchestrator correctly identifies steps 1-3 as complete (via resume logic), skips them, proceeds to display topic menu from topics.json, and pauses for user topic selection before continuing to step 4.",
+      "assertions": [
+        {
+          "id": "oc-1",
+          "name": "resume_logic_skips_completed_steps",
+          "description": "Orchestrator correctly detects steps 1-3 outputs exist and skips them rather than re-running them",
+          "type": "llm_judge",
+          "rubric": "Read the agent's response. It should explicitly state that project.json, references.json, and topics.json already exist and those steps will be skipped. It should NOT re-run project-parser or reference-manager. PASS if it recognizes existing files and announces skipping. FAIL if it tries to re-run already-complete steps."
+        },
+        {
+          "id": "oc-2",
+          "name": "topic_menu_displayed",
+          "description": "Orchestrator presents topic selection menu to user (from topics.json) before proceeding to step 4",
+          "type": "llm_judge",
+          "rubric": "Check if the orchestrator reads topics.json and presents the available topics (A, B, C, D) to the user as a menu, then pauses and waits for user input before starting classroom-generator. PASS if it shows topics and waits. FAIL if it auto-selects a topic without user input."
+        },
+        {
+          "id": "oc-3",
+          "name": "pipeline_step_sequence_correct",
+          "description": "Orchestrator announces the correct step sequence (1→2→3→user→4→5→6→7→8→9)",
+          "type": "llm_judge",
+          "rubric": "Check whether the orchestrator describes or implies the 9-step pipeline sequence. It should at minimum reference the dependency chain: project-parser→reference-manager→topic-generator→(user)→classroom-generator→paper-writer→paper-reviewer→consistency-checker→humanizer→exporter. PASS if the sequence or relevant steps are correctly identified."
+        },
+        {
+          "id": "oc-4",
+          "name": "dependency_check_performed",
+          "description": "Orchestrator checks for humanizer and pandoc availability and reports status to user",
+          "type": "llm_judge",
+          "rubric": "Per the orchestrator SKILL.md, it should check whether the humanizer skill and pandoc are available, and inform the user of their status before starting. PASS if it mentions checking these dependencies. FAIL if it skips this pre-flight check entirely."
+        }
+      ]
+    }
+  ]
+}
