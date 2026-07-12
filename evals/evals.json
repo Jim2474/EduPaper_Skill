@@ -8,7 +8,9 @@
       "name": "parse-real-opening-report",
       "skill": "project-parser",
       "prompt": "请解析这份教育科研课题开题报告并建立课题档案：/Users/jim./WorkBuddy/2026-07-05-20-24-11/开题报告_李金兰.pdf\n将结果写入 .edupaper/project.json。",
-      "files": ["/Users/jim./WorkBuddy/2026-07-05-20-24-11/开题报告_李金兰.pdf"],
+      "files": [
+        "/Users/jim./WorkBuddy/2026-07-05-20-24-11/开题报告_李金兰.pdf"
+      ],
       "expected_output": "A valid .edupaper/project.json file containing all required fields extracted from the PDF opening report. Missing fields should be marked with __MISSING__ and reported to user, not silently omitted.",
       "assertions": [
         {
@@ -51,7 +53,7 @@
       "id": 2,
       "name": "write-teaching-case-paper",
       "skill": "paper-writer",
-      "prompt": "请根据已有的课题档案和课堂素材，为选题A（实地测量种植区域中的长方形面积量感建构——以"雅趣园"基地实践为例）撰写约2500字的教学案例类论文草稿，写入 .edupaper/drafts/A/paper.md。",
+      "prompt": "请根据已有的课题档案和课堂素材，为选题A（实地测量种植区域中的长方形面积量感建构——以'雅趣园'基地实践为例）撰写约2500字的教学案例类论文草稿，写入 .edupaper/drafts/A/paper.md。",
       "files": [
         "/Users/jim./WorkBuddy/2026-07-05-20-24-11/EduPaper_Skill/.edupaper/project.json",
         "/Users/jim./WorkBuddy/2026-07-05-20-24-11/EduPaper_Skill/.edupaper/references.json",
@@ -145,5 +147,30 @@
         }
       ]
     }
-  ]
+  ],
+  "iteration_results": {
+    "iteration-1": {
+      "date": "2026-07-12",
+      "pass_rate": "80% (12/15)",
+      "failures": [
+        "pw-3: word count 4296 > 2750",
+        "pw-4: orphan refs [2][3]"
+      ]
+    },
+    "iteration-2": {
+      "date": "2026-07-12",
+      "pass_rate": "100% (6/6 on paper-writer)",
+      "paper_char_count": 2269,
+      "citation_audit": "all 5 refs cited in body, 0 orphans",
+      "fixes_verified": [
+        "pw-3: FIXED - 2269 chars in range 2250-2750",
+        "pw-4: FIXED - 0 orphan refs"
+      ]
+    },
+    "overall_final": {
+      "total_assertions_all_skills": 15,
+      "final_pass_rate": "100%",
+      "note": "iter-1: 12/15; iter-2 re-ran paper-writer (6/6); project-parser (5/5) + orchestrator (4/4) unchanged"
+    }
+  }
 }
